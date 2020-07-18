@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 // StartTime gives the start time of server
@@ -41,6 +42,14 @@ func main() {
 	renderer := &TemplateRenderer{
 		templates: template.Must(template.ParseGlob("templates/*.html")),
 	}
+	e.HideBanner = true
+	e.Debug = true
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: `{"time":"${time_rfc3339}","id":"${id}","host":"${host}",` +
+			`,"uri":"${uri}","status":${status},"error":"${error}","latency":${latency_human},` +
+			`"bytes_out":${bytes_out}}` + "\n",
+		Output: os.Stdout,
+	}))
 	e.Renderer = renderer
 	e.GET("/", homePage)
 	e.Logger.Fatal(e.Start(fmt.Sprintf("[::]:%d", port)))
