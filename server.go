@@ -15,6 +15,8 @@ import (
 // StartTime gives the start time of server
 var StartTime = time.Now()
 
+const port = 1323
+
 func uptime() string {
 	elapsedTime := time.Since(StartTime)
 	return fmt.Sprintf("%d:%d:%d", int(math.Round(elapsedTime.Hours())), int(math.Round(elapsedTime.Minutes())), int(math.Round(elapsedTime.Seconds())))
@@ -41,5 +43,5 @@ func main() {
 	}
 	e.Renderer = renderer
 	e.GET("/", homePage)
-	e.Logger.Fatal(e.Start("[::]:1323"))
+	e.Logger.Fatal(e.Start(fmt.Sprintf("[::]:%d", port)))
 }
