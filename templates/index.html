@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Hello Universe</title>
+<style type="text/css">
+body{
+    width: 800px;
+    margin: 0 auto;
+    font-family: sans-serif;
+    margin-top: 40px;
+    background: #000;
+    color: #FFF;
+}
+.headerName{
+    background:#0b0d1b;
+    padding:6px;
+}
+.headerValue{
+    background:#141619;
+    padding:6px;
+}
+#response{
+    font-size:20px;
+    border: 1px solid #d4d3d9;
+    padding: 20px;
+}
+</style>
+</head>
+<body>
+    <h3>Request Headers</h3>
+    <table>
+        {{range $headerName, $headerValue := .requestHeaders}}
+        <tr>
+            <td class='headerName'>{{$headerName}}</td>
+            <td class='headerValue'>{{$headerValue}}</td>
+        </tr>
+        {{end}}
+    </table>
+    <hr/>
+    <h3>Response from {{.host}} </h3>
+    <div id='response'>
+        {{.response}}
+    </div>
+</body>
+</html>
