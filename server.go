@@ -11,8 +11,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/newrelic/go-agent/v3/integrations/nrecho-v4"
-	"github.com/newrelic/go-agent/v3/newrelic"
+	log "github.com/labstack/gommon/log"
+	flag "github.com/spf13/pflag"
 )
 
 // StartTime gives the start time of server
@@ -40,6 +40,9 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 }
 
 func main() {
+	var serviceDependencyURL string
+	flag.StringVarP(&serviceDependencyURL, "service-dep-url", "s", "", "External Service Dependency Url")
+	flag.Parse()
 	e := echo.New()
 	renderer := &TemplateRenderer{
 		templates: template.Must(template.ParseGlob("templates/*.html")),
@@ -52,32 +55,22 @@ func main() {
 			`"bytes_out":${bytes_out}}` + "\n",
 		Output: os.Stdout,
 	}))
+	e.Logger.SetLevel(log.DEBUG)
 	var port, isEnvVarSet = os.LookupEnv("APP_PORT")
 	if !isEnvVarSet {
 		port = defaultAppPort
-		e.Logger.Info("Port is defaulted to %s", port)
+		e.Logger.Infof("Port is defaulted to %s", port)
 	}
-	var enableMonitoring = os.Getenv("ENABLE_MONITORING")
+	var enableMonitoring = os.Getenv("ENABLE_APM")
 	if enableMonitoring == "" {
-		e.Logger.Info("Monitoring is disabled")
+		e.Logger.Warn("Monitoring is disabled")
 	} else {
-		var monitoringAppName = os.Getenv("MONITORING_APP_NAME")
-		if monitoringAppName == "" {
-			panic("MONITORING_APP_NAME env needs to be set, to enable monitoring")
-		}
-		var monitoringAgentLicenseKey = os.Getenv("MONITORING_LICENSE_KEY")
-		if monitoringAgentLicenseKey == "" {
-			panic("MONITORING_LICENSE_KEY env needs to be set, to enable monitoring")
-		}
-
-		app, err := newrelic.NewApplication(
-			newrelic.ConfigAppName(monitoringAppName),
-			newrelic.ConfigLicense(monitoringAgentLicenseKey),
-		)
-		if err != nil {
-			panic(err)
-		}
-		e.Use(nrecho.Middleware(app))
+		enableAppPerfMonitoring(e)
+	}
+	if serviceDependencyURL == "" {
+		e.Logger.Warn("serviceDependencyURL not supplied. Hence tracing is disabled")
+	} else {
+		initTracer(e, serviceDependencyURL)
 	}
 	e.Renderer = renderer
 	e.GET("/", homePage)
