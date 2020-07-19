@@ -12,6 +12,8 @@ func enableAPM(e *echo.Echo) {
 	var apmAppName = os.Getenv("APM_APP_NAME")
 	if apmAppName == "" {
 		e.Logger.Fatal("APM_APP_NAME env needs to be set, to enable application performance monitoring (apm)")
+	} else {
+		e.Logger.Infof("Will post all transactions data to %s APM_APP_NAME", apmAppName)
 	}
 	var apmLicenseKey = os.Getenv("APM_LICENSE_KEY")
 	if apmLicenseKey == "" {
