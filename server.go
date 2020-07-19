@@ -11,12 +11,14 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/newrelic/go-agent/v3/integrations/nrecho-v4"
+	"github.com/newrelic/go-agent/v3/newrelic"
 )
 
 // StartTime gives the start time of server
 var StartTime = time.Now()
 
-const port = 1323
+const defaultAppPort string = "1323"
 
 func uptime() string {
 	elapsedTime := time.Since(StartTime)
@@ -50,7 +52,34 @@ func main() {
 			`"bytes_out":${bytes_out}}` + "\n",
 		Output: os.Stdout,
 	}))
+	var port, isEnvVarSet = os.LookupEnv("APP_PORT")
+	if !isEnvVarSet {
+		port = defaultAppPort
+		e.Logger.Info("Port is defaulted to %s", port)
+	}
+	var enableMonitoring = os.Getenv("ENABLE_MONITORING")
+	if enableMonitoring == "" {
+		e.Logger.Info("Monitoring is disabled")
+	} else {
+		var monitoringAppName = os.Getenv("MONITORING_APP_NAME")
+		if monitoringAppName == "" {
+			panic("MONITORING_APP_NAME env needs to be set, to enable monitoring")
+		}
+		var monitoringAgentLicenseKey = os.Getenv("MONITORING_LICENSE_KEY")
+		if monitoringAgentLicenseKey == "" {
+			panic("MONITORING_LICENSE_KEY env needs to be set, to enable monitoring")
+		}
+
+		app, err := newrelic.NewApplication(
+			newrelic.ConfigAppName(monitoringAppName),
+			newrelic.ConfigLicense(monitoringAgentLicenseKey),
+		)
+		if err != nil {
+			panic(err)
+		}
+		e.Use(nrecho.Middleware(app))
+	}
 	e.Renderer = renderer
 	e.GET("/", homePage)
-	e.Logger.Fatal(e.Start(fmt.Sprintf("[::]:%d", port)))
+	e.Logger.Fatal(e.Start(fmt.Sprintf("[::]:%s", port)))
 }
