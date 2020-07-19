@@ -8,19 +8,19 @@ import (
 	"github.com/newrelic/go-agent/v3/newrelic"
 )
 
-func enableAppPerfMonitoring(e *echo.Echo) {
-	var monitoringAppName = os.Getenv("MONITORING_APP_NAME")
-	if monitoringAppName == "" {
-		e.Logger.Fatal("MONITORING_APP_NAME env needs to be set, to enable monitoring")
+func enableAPM(e *echo.Echo) {
+	var apmAppName = os.Getenv("APM_APP_NAME")
+	if apmAppName == "" {
+		e.Logger.Fatal("APM_APP_NAME env needs to be set, to enable application performance monitoring (apm)")
 	}
-	var monitoringAgentLicenseKey = os.Getenv("MONITORING_LICENSE_KEY")
-	if monitoringAgentLicenseKey == "" {
-		e.Logger.Fatal("MONITORING_LICENSE_KEY env needs to be set, to enable monitoring")
+	var apmLicenseKey = os.Getenv("APM_LICENSE_KEY")
+	if apmLicenseKey == "" {
+		e.Logger.Fatal("APM_LICENSE_KEY env needs to be set, to enable application performance monitoring (apm)")
 	}
 
 	app, err := newrelic.NewApplication(
-		newrelic.ConfigAppName(monitoringAppName),
-		newrelic.ConfigLicense(monitoringAgentLicenseKey),
+		newrelic.ConfigAppName(apmAppName),
+		newrelic.ConfigLicense(apmLicenseKey),
 	)
 	if err != nil {
 		e.Logger.Fatal(err)

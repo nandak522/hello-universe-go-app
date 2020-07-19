@@ -61,11 +61,11 @@ func main() {
 		port = defaultAppPort
 		e.Logger.Infof("Port is defaulted to %s", port)
 	}
-	var enableMonitoring = os.Getenv("ENABLE_APM")
-	if enableMonitoring == "" {
-		e.Logger.Warn("Monitoring is disabled")
+	var enableAppPerfMonitoring = os.Getenv("ENABLE_APM")
+	if enableAppPerfMonitoring == "" {
+		e.Logger.Warn("Application Performance Monitoring is disabled")
 	} else {
-		enableAppPerfMonitoring(e)
+		enableAPM(e)
 	}
 	if serviceDependencyURL == "" {
 		e.Logger.Warn("serviceDependencyURL not supplied. Hence tracing is disabled")

@@ -5,6 +5,7 @@ COPY *.go /app/
 COPY templates /app/templates/
 COPY go.* /app/
 RUN cd /app \
+    && go mod tidy \
     && go build -o server .
 
 FROM ubuntu:20.04
@@ -14,7 +15,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     DEBUG_DEPS="curl less lsof strace netcat net-tools" \
     BUILD_DEPS="build-essential" \
     APP_DEPS="tzdata" \
-    APP_USER=appuser
+    APP_USER=appuser \
+    APP_PORT=1323
 
 WORKDIR /app
 RUN mkdir /app/templates
