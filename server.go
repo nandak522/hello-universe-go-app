@@ -13,6 +13,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	log "github.com/labstack/gommon/log"
 	flag "github.com/spf13/pflag"
+	"github.com/none-da/hello-universe-go-app/tracing/otel"
 )
 
 // StartTime gives the start time of server
@@ -61,13 +62,7 @@ func main() {
 	if serviceDependencyURL == "" {
 		e.Logger.Warn("serviceDependencyURL not supplied. Hence tracing is disabled")
 	} else {
-		// e.Use(func(h echo.HandlerFunc) echo.HandlerFunc {
-		// 	return func(c echo.Context) error {
-		// 		cc := &customContext{c, &serviceDependencyURL}
-		// 		return h(cc)
-		// 	}
-		// })
-		initTracer(e, serviceDependencyURL)
+		initOpenTelemetry(e, serviceDependencyURL)
 	}
 
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
