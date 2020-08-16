@@ -1,0 +1,91 @@
+environment: local
+namespace: hello-universe
+# deployments is an array. Hence supports multiple deployments.
+deployments:
+  - name: hello-universe
+    canary:
+      enabled: true
+      replicas: 1 # This is always recommended to be 1
+      labels:
+        kind: canary
+    podLabels:
+      app: hello-universe
+    # containers is an array. Hence supports multiple containers.
+    containers:
+      - name: hello-universe
+        containerPortName: pythonport
+        containerPort: 5000
+        internalServicePort: 8000
+        externalNodePort: 32767
+        servicePortName: pythonport
+        imageName: nanda/hello-universe
+        imageTag: v11
+        configMapName: config-plain
+        secretName: secrets-plain
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 200m
+            memory: 200Mi
+      # - name: nginx
+      #   containerPort: 80
+      #   internalServicePort: 80
+      #   externalNodePort: 32766
+      #   servicePortName: httpport
+      #   containerPortName: httpport
+      #   imageName: nginx
+      #   imageTag: 1.18.0
+      #   resources:
+      #     requests:
+      #       cpu: 100m
+      #       memory: 100Mi
+    # affinity:
+    #   nodeAffinityLabels:
+    #     - name: environment
+    #       value: minikube
+    #   podAntiAffinity:
+    #     type: "required" # vs preferred
+    #     labels: # similar to podLabels mentioned above
+    #       - name: app
+    #         value: hello-universe
+    rollingUpdate:
+      maxSurge: "30%"
+      maxUnavailable: "20%"
+    replicas: 1 # If hpa is defined, defining replicas count here is incorrect. Let hpa totally manage the replicas.
+    # hpa:
+    #   type: "native"
+    #   config: |-
+    #     minReplicas: 1
+    #     maxReplicas: 3
+    #     targetCPUAverage: 80
+    #     targetMemoryAverage: 60
+    #     targetDeployment: hello-universe
+    #     targetNamespace: hello-universe
+    pdb:
+      minAvailable: 80%
+configMaps:
+  - name: config-plain
+    data:
+      ADD_FUN: "yes"
+# - name: nginx
+#   data:
+# ADD_FUN: "yeah"
+configFiles:
+  - name: config-file
+    file: config.json
+    mountPath: /service/config.json
+# NOTE: secrets are part of values-secrets.yaml
+requiredInfraDependencies:
+  name: app-infra
+  values:
+    # NOTE: All the below values are interpreted from values-infra-secrets-<env>.yaml
+    # MYSQL_HOST: $MONOLITH_MASTER_DATABASE_HOST
+    MYSQL_HOST: $MAZERUNNERS_DATABASE_HOST
+    MYSQL_PORT: $MAZERUNNERS_DATABASE_PORT
+    SERVICE_A: $SERVICE_A
+# NOTE: nodeLabels renders the nodeSelector block.
+# nodeAffinityLabels, although can be used as an alternative to `nodeSelector`, is much more powerful than `nodeSelector`.
+nodeLabels:
+  environment: minikube

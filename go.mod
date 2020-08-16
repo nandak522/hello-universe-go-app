@@ -1,5 +1,7 @@
 module github.com/none-da/hello-universe-go-app
 
+replace github.com/none-da/hello-universe-go-app => /Users/nanda/sources/hello-universe-go-app
+
 go 1.14
 
 require (

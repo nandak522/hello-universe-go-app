@@ -1,0 +1,49 @@
+{{- $root := . }}
+{{- $values := $root.Values }}
+{{- $deploymentsData := $values.deployments }}
+{{ if $deploymentsData }}
+{{- range $deploymentsData }}
+{{ $currentDeployment := . }}
+{{- if $currentDeployment.hpa -}}
+{{- if eq $currentDeployment.hpa.type "native" -}}
+{{ $hpaConfigs := dict }}
+{{ $lines := splitList "\n" $currentDeployment.hpa.config }}
+{{ range $lines }}
+{{ $parts := splitList ":" . }}
+{{ if $parts }}
+{{ $_ := set $hpaConfigs (first $parts | trim ) (last $parts | trim ) }}
+{{ end }}
+{{ end }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  labels:
+    app: {{ $currentDeployment.name }}
+    env: {{ $values.environment }}
+  name: {{ $currentDeployment.name }}
+  namespace: {{ $hpaConfigs.targetNamespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ $hpaConfigs.targetDeployment }}
+  minReplicas: {{ $hpaConfigs.minReplicas }}
+  maxReplicas: {{ $hpaConfigs.maxReplicas }}
+  metrics:
+  {{- if hasKey $hpaConfigs "targetCPUAverage" }}
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: {{ $hpaConfigs.targetCPUAverage }}
+  {{- end }}
+  {{- if hasKey $hpaConfigs "targetMemoryAverage" }}
+  - type: Resource
+    resource:
+      name: memory
+      targetAverageUtilization: {{ $hpaConfigs.targetMemoryAverage }}
+  {{- end }}
+{{ end }}
+{{ end }}
+---
+{{ end }}
+{{ end }}

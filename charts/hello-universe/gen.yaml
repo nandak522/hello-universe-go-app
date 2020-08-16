@@ -1,0 +1,35 @@
+environment: dev
+namespace: hello-universe
+deployments:
+    - name: hello-universe
+      podLabels:
+        app: hello-universe
+      containers:
+        - name: hello-universe
+          containerPort: 1323
+          containerPortName: appport
+          imageName: nanda/hello-universe
+          imageTag: v13
+          resources:
+            requests:
+                cpu: 100m
+                memory: 100Mi
+            limits:
+                cpu: 200m
+                memory: 200Mi
+      rollingUpdate:
+        maxSurge: 30%
+        maxUnavailable: 20%
+      replicas: 1
+requiredInfraDependencies:
+    name: app-infra
+    values:
+        MYSQL_HOST: $DATABASE_HOST
+        MYSQL_PORT: $DATABASE_PORT
+        SERVICE_A: $SERVICE_A
+nodeLabels:
+    environment: minikube
+infraSettings:
+    DATABASE_HOST: bG9jYWxob3N0Cg==
+    DATABASE_PORT: MzMwNgo=
+    SERVICE_A: aHR0cDovL2xvY2FsaG9zdDoxMjM0Cg==

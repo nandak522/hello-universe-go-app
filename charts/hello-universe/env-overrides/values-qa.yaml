@@ -1,0 +1,8 @@
+# NOTE: Dont put any secrets like db passwords or api tokens in this committed file.
+# values-secrets.yaml should contain such things. It will be outside Git.
+
+# This file is meant to store non secretive configuration values purely.
+environment: qa
+deployments:
+  - name: hello-universe
+    replicas: 1 # If hpa is defined, defining replicas count here is incorrect. Let hpa totally manage the replicas.

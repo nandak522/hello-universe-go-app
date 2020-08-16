@@ -1,0 +1,111 @@
+{{/*
+This template renders both normal and canary deployments.
+*/}}
+{{- $root := . }}
+{{- $values := $root.Values }}
+{{ $registry := eq $values.environment "prod" | ternary "registry-intl.ap-south-1.aliyuncs.com/bb-engg/" "274334742953.dkr.ecr.us-east-1.amazonaws.com/bb-engg/" }}
+{{- $deploymentsData := $values.deployments }}
+{{ if $deploymentsData }}
+{{- range $deploymentsData }}
+{{ $currentDeployment := . }}
+{{ $normalDeployment := dict "replicas" $currentDeployment.replicas "isCanary" false }}
+{{ $deployments := list $normalDeployment }}
+{{ if $currentDeployment.canary }}
+{{ if eq $currentDeployment.canary.enabled true }}
+{{ $canaryDeployment := dict "replicas" $currentDeployment.replicas "isCanary" true }}
+{{ $deployments = append $deployments $canaryDeployment }}
+{{ end -}}
+{{ end -}}
+{{ range $deployments }}
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ $currentDeployment.name }}{{- if .isCanary }}-canary{{- end }}
+  namespace: {{ $values.namespace }}
+spec:
+  replicas: {{ .replicas }}
+  strategy:
+    rollingUpdate:
+      {{- toYaml $currentDeployment.rollingUpdate | nindent 6 }}
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: {{ $currentDeployment.name }}
+  template:
+    metadata:
+      {{- if or $currentDeployment.podLabels $currentDeployment.canary }}
+      labels:
+        {{ if $currentDeployment.podLabels }}
+        {{- toYaml $currentDeployment.podLabels }}
+        {{- end }}
+        {{- if .isCanary }}
+        {{- if $currentDeployment.canary.labels }}
+        {{- toYaml $currentDeployment.canary.labels | nindent 8 }}
+        {{- end }}
+        {{- end }}
+      {{- end }}
+      {{- include "app.podAnnotations" $root | indent 6 }}
+    spec:
+      {{- if $currentDeployment.affinity }}
+      {{- include "app.affinity" $currentDeployment.affinity | trim | nindent 6 }}
+      {{- end }}
+      containers:
+      {{- range $currentDeployment.containers }}
+        - livenessProbe:
+            tcpSocket:
+              port: {{ .containerPort }}
+            periodSeconds: 5
+          name: {{ .name }}
+          envFrom:
+            {{- if hasKey . "configMapName" }}
+            - configMapRef:
+                name: {{ .configMapName }}
+            {{- end }}
+            {{- if hasKey . "secretName" }}
+            - secretRef:
+                name: {{ .secretName }}
+            {{- end }}
+            - secretRef:
+                name: {{ $values.requiredInfraDependencies.name }}
+          imagePullPolicy: IfNotPresent
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .containerPort }}
+            timeoutSeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            failureThreshold: 2
+          image: {{ $registry }}{{ .imageName }}:{{- .imageTag }}
+          ports:
+            - protocol: TCP
+              name: {{ .containerPortName }}
+              containerPort: {{ .containerPort }}
+          resources:
+          {{- toYaml .resources | nindent 12 }}
+          {{- if or ($values.configFiles) ($values.secretsFiles) }}
+          volumeMounts:
+            {{- if hasKey $values "configFiles" }}
+            {{- include "app.containerVolumeMounts" $values.configFiles | trim | nindent 12 }}
+            {{- end }}
+            {{- if hasKey $values "secretsFiles" }}
+            {{- include "app.containerVolumeMounts" $values.secretsFiles | trim | nindent 12 }}
+            {{- end }}
+          {{- end }}
+      {{- end }}
+      {{- include "app.nodeLabels" $values.nodeLabels | trim | nindent 6 }}
+      {{ $podConfigMapVolumesData := dict "configFiles" $values.configFiles "type" "configFiles" -}}
+      {{ $podSecretVolumesData := dict "secretsFiles" $values.secretsFiles "type" "secretsFiles" -}}
+      {{- if or ($podConfigMapVolumesData.configFiles) ($podSecretVolumesData.secretsFiles) -}}
+      volumes:
+        {{- if $podConfigMapVolumesData.configFiles }}
+        {{- include "app.podVolumes" $podConfigMapVolumesData | trim | nindent 8 }}
+        {{- end }}
+        {{- if $podSecretVolumesData.secretsFiles }}
+        {{- include "app.podVolumes" $podSecretVolumesData | trim | nindent 8 }}
+        {{- end }}
+      {{- end }}
+---
+{{ end }}
+{{ end }}
+{{ end }}
