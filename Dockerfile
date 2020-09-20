@@ -29,6 +29,7 @@ WORKDIR /app
 USER ${USER}:${USER}
 COPY --from=builder /app/server .
 COPY --from=builder /app/templates /app/templates/
-ENV USER=appuser
-EXPOSE 1323
+ENV USER=appuser \
+    APP_PORT=1323
+EXPOSE ${APP_PORT}
 CMD ["/app/server"]
