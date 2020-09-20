@@ -11,12 +11,13 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
 )
 
 // StartTime gives the start time of server
 var StartTime = time.Now()
 
-const port = 1323
+const defaultAppPort string = "1323"
 
 func uptime() string {
 	elapsedTime := time.Since(StartTime)
@@ -50,7 +51,13 @@ func main() {
 			`"bytes_out":${bytes_out}}` + "\n",
 		Output: os.Stdout,
 	}))
+	e.Logger.SetLevel(log.DEBUG)
+	var port, isEnvVarSet = os.LookupEnv("APP_PORT")
+	if !isEnvVarSet {
+		port = defaultAppPort
+		e.Logger.Infof("Port is defaulted to %s", port)
+	}
 	e.Renderer = renderer
 	e.GET("/", homePage)
-	e.Logger.Fatal(e.Start(fmt.Sprintf("[::]:%d", port)))
+	e.Logger.Fatal(e.Start(fmt.Sprintf("[::]:%s", port)))
 }
