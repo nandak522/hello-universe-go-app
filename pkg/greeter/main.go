@@ -9,11 +9,9 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
-	log "github.com/labstack/gommon/log"
-	flag "github.com/spf13/pflag"
-	"github.com/none-da/hello-universe-go-app/tracing/otel"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
+	"github.com/labstack/gommon/log"
 )
 
 // StartTime gives the start time of server
