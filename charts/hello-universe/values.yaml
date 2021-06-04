@@ -1,0 +1,61 @@
+environment: local
+namespace: hello-universe
+# deployments is an array. Hence supports multiple deployments.
+deployments:
+  - name: hello-universe
+    podLabels:
+      app: hello-universe
+    # containers is an array. Hence supports multiple containers.
+    containers:
+      - name: hello-universe
+        containerPortName: httpport
+        containerPort: 1323
+        internalServicePort: 80
+        externalNodePort: 32760
+        servicePortName: httpport
+        imageName: nanda/hello-universe
+        imageTag: v1
+        configMapName: config-plain
+        configFileName: config-file
+        secretName: secrets-plain
+        secretsFileName: secrets-file
+        livenessProbe:
+          tcpSocket:
+            port: 1323
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 1323
+          timeoutSeconds: 10
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 2
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 200m
+            memory: 200Mi
+        env:
+          - name: "ADD_FUN"
+            value: "Yes"
+      # - name: nginx
+      #   containerPort: 80
+      #   internalServicePort: 80
+      #   externalNodePort: 32764
+      #   servicePortName: httpport
+      #   containerPortName: httpport
+      #   imageName: nginx
+      #   imageTag: 1.18.0
+      #   resources:
+      #     requests:
+      #       cpu: 100m
+      #       memory: 100Mi
+    # imagePullSecret: my-registry
+    rollingUpdate:
+      maxSurge: "30%"
+      maxUnavailable: "20%"
+    replicas: 1 # If hpa is defined, defining replicas count here is incorrect. Let hpa totally manage the replicas.
+    # terminationGracePeriodSeconds: 60
