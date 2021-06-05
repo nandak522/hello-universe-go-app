@@ -1,52 +1,56 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>Hello Universe</title>
-<style type="text/css">
-body{
-    width: 800px;
-    margin: 0 auto;
-    font-family: sans-serif;
-    margin-top: 40px;
-    background: #2d2f3e;
-    color: #FFF;
-}
-.headerName{
-    background:#272937;
-    padding:0.75em;
-    border-top: 1px solid #dee2e6;
-}
-.headerValue{
-    padding:0.75em;
-    background:#20222f;
-    padding:6px;
-}
-#response{
-    font-size:20px;
-    border: 1px solid #0e0e0f;
-    padding: 20px;
-}
-h3 {
-    margin-bottom: 0.5rem;
-    font-weight: normal;
-    line-height: 1.2;
-}
-</style>
+    <title>Hello Universe</title>
+    <link type="text/css" href="/static/css/bootstrap.min.css" rel="stylesheet" />
 </head>
-<body>
-    <h3>Request Headers</h3>
-    <table>
-        {{- range $headerName, $headerValue := .requestHeaders}}
-        <tr>
-            <td class='headerName'>{{$headerName}}</td>
-            <td class='headerValue'>{{$headerValue}}</td>
-        </tr>
-        {{- end}}
-    </table>
-    <hr/>
-    <h3>Response from {{.host}} </h3>
-    <div id='response'>
-        {{.response}}
+
+<body class="bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="px-5 py-5">
+                    <h3>Request Headers</h3>
+                    <ol class="list-group">
+                        {{- range $headerName, $headerValue := .requestHeaders }}
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">{{ $headerName }}</div>
+                                {{ $headerValue }}
+                            </div>
+                        </li>
+                        {{- end }}
+                    </ol>
+                </div>
+            </div>
+            <div class="col">
+                <div class="px-5 py-5">
+                    <h3>Response</h3>
+                    <div class="alert alert-light" role="alert">
+                        {{ .response }}
+                    </div>
+                    <hr />
+                    <table class="table table-borderless table-sm">
+                        <tr>
+                            <th>
+                                Received from
+                            </th>
+                            <th>
+                                Uptime
+                            </th>
+                        </tr>
+                        <tr>
+                            <td>{{ .host }}</td>
+                            <td>{{ .uptime }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
+    <script type="text/javascript" src="/static/js/bootstrap.bundle.min.js" />
+    </script>
 </body>
+
 </html>
