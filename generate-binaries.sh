@@ -13,7 +13,7 @@ do
     platform_split=(${platform//\// })
     GOOS=${platform_split[0]}
     GOARCH=${platform_split[1]}
-    output_name=heva'-v'$VERSION'-'$GOOS'-'$GOARCH
+    output_name=hello-universe'-v'$VERSION'-'$GOOS'-'$GOARCH
 
     env GOOS=$GOOS GOARCH=$GOARCH go build -o $output_name .
     if [ $? -ne 0 ]; then

@@ -80,7 +80,7 @@ func main() {
 	var printHelp bool
 	flag.BoolVarP(&printHelp, "help", "h", false, "Prints this help content.")
 	var printVersion bool
-	flag.BoolVarP(&printVersion, "version", "v", false, "Prints the version of Heva.")
+	flag.BoolVarP(&printVersion, "version", "v", false, "Prints the version of hello-universe-app.")
 
 	flag.Parse()
 	if printHelp {
