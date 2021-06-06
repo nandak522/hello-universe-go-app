@@ -1,4 +1,4 @@
-FROM golang:1.15 as builder
+FROM golang:1.16 as builder
 ENV USER=appuser \
     UID=10001 \
     GO111MODULE=on \
@@ -15,10 +15,11 @@ RUN adduser \
     "${USER}"
 WORKDIR /app
 RUN mkdir -p /app/templates
+RUN mkdir -p /app/static
 COPY *.go /app/
 COPY go.* /app/
 COPY templates /app/templates/
-COPY go.* /app/
+COPY static /app/static/
 RUN cd /app \
     && go build -a -o server
 
@@ -28,7 +29,6 @@ COPY --from=builder /etc/group /etc/group
 WORKDIR /app
 USER ${USER}:${USER}
 COPY --from=builder /app/server .
-COPY --from=builder /app/templates /app/templates/
 ENV USER=appuser \
     APP_PORT=1323
 EXPOSE ${APP_PORT}
