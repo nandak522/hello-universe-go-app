@@ -15,7 +15,7 @@
 # vendor/
 
 # Binary
-/hello-universe-go-app*
+/hello-universe-*
 /server
 /env
 
