@@ -3,7 +3,6 @@ package main
 import (
 	"embed"
 	"fmt"
-	"math"
 	"net/http"
 	"os"
 	"strings"
@@ -46,11 +45,6 @@ func getLogLevel(suppliedLogLevel string) log.Level {
 	return log.DebugLevel
 }
 
-func uptime() string {
-	elapsedTime := time.Since(StartTime)
-	return fmt.Sprintf("%d:%d:%d", int(math.Round(elapsedTime.Hours())), int(math.Round(elapsedTime.Minutes())), int(math.Round(elapsedTime.Seconds())))
-}
-
 func homePageHandler(rw http.ResponseWriter, r *http.Request) {
 	var path = r.URL.Path
 	log.Debug("Serving request for path: ", path)
@@ -62,7 +56,7 @@ func homePageHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 	host, _ := os.Hostname()
 	homePageTemplate.Execute(rw, map[string]interface{}{
-		"uptime":         uptime(),
+		"uptime":         time.Now().Sub(StartTime).Round(time.Second),
 		"host":           host,
 		"requestHeaders": r.Header,
 		"response":       "Hello Universe",
