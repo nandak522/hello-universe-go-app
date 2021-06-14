@@ -30,6 +30,6 @@ helm upgrade -v 3 \
     --debug \
     --cleanup-on-fail \
     --values values.yaml \
-    v1 \
+    hello-universe \
     .
 ```
