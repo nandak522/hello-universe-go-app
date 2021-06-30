@@ -13,14 +13,16 @@ kubectl create ns hello-universe
 cd charts/hello-universe
 
 helm template -v 5 \
-    --namespace webhooks \
+    --create-namespace \
+    --namespace hello-universe \
     --logtostderr \
     --debug \
-    --values values.yaml \
+    --values values-default.yaml \
     hello-universe \
     .
 
 helm upgrade -v 3 \
+    --create-namespace \
     --namespace hello-universe \
     --logtostderr \
     --debug \
@@ -29,7 +31,7 @@ helm upgrade -v 3 \
     --timeout 60s \
     --debug \
     --cleanup-on-fail \
-    --values values.yaml \
+    --values values-default.yaml \
     hello-universe \
     .
 ```
