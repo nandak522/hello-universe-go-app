@@ -9,8 +9,8 @@ on:
       - "charts"
 
 jobs:
-  docker:
-    runs-on: ubuntu-latest
+  build-docker-image:
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
