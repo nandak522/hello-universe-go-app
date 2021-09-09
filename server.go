@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -45,22 +46,44 @@ func getLogLevel(suppliedLogLevel string) log.Level {
 	return log.DebugLevel
 }
 
+type HomePageResponse struct {
+	RequestHeaders map[string][]string `json:"requestHeaders"`
+	Content        string              `json:"content"`
+	Uptime         string              `json:"uptime"`
+	Host           string              `json:"host"`
+}
+
 func homePageHandler(rw http.ResponseWriter, r *http.Request) {
 	var path = r.URL.Path
 	log.Debug("Serving request for path: ", path)
-	rw.Header().Add("Content-type", "text/html")
-
-	homePageTemplate, err := template.ParseFS(templatesContent, "templates/index.html")
-	if err != nil {
-		log.Fatal(err)
-	}
 	host, _ := os.Hostname()
-	homePageTemplate.Execute(rw, map[string]interface{}{
-		"uptime":         time.Now().Sub(StartTime).Round(time.Second),
-		"host":           host,
-		"requestHeaders": r.Header,
-		"response":       "Hello Universe",
-	})
+	content := "Hello Universe"
+	uptime := time.Now().Sub(StartTime).Round(time.Second)
+	response := HomePageResponse{
+		RequestHeaders: r.Header,
+		Content:        content,
+		Uptime:         uptime.String(),
+		Host:           host,
+	}
+
+	if strings.Contains(r.Header.Get("Content-Type"), "json") {
+		rw.Header().Add("Content-type", "application/json")
+		// rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(http.StatusCreated)
+		json.NewEncoder(rw).Encode(response)
+	} else {
+		rw.Header().Add("Content-type", "text/html")
+		homePageTemplate, err := template.ParseFS(templatesContent, "templates/index.html")
+		if err != nil {
+			log.Fatal(err)
+		}
+		homePageTemplate.Execute(rw, map[string]interface{}{
+			"uptime":         response.Uptime,
+			"host":           response.Host,
+			"requestHeaders": response.RequestHeaders,
+			"content":        response.Content,
+		})
+	}
 }
 
 func main() {
