@@ -120,7 +120,7 @@ func main() {
 	if !isEnvVarSet {
 		port = defaultAppPort
 	}
-	log.Info("http server is ready to serve at port ", port)
+	log.Info("hello-universe service running @ http://localhost:", port)
 
 	err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 	if err != nil {
