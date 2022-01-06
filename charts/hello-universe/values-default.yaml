@@ -9,7 +9,7 @@ deployments:
     containers:
       - name: hello-universe
         containerPortName: httpport
-        containerPort: 1323
+        containerPort: 8000
         internalServicePort: 80
         externalNodePort: 32760
         servicePortName: httpport
@@ -21,12 +21,12 @@ deployments:
         secretsFileName: secrets-file
         livenessProbe:
           tcpSocket:
-            port: 1323
+            port: 8000
           periodSeconds: 5
         readinessProbe:
           httpGet:
             path: /
-            port: 1323
+            port: 8000
           timeoutSeconds: 10
           periodSeconds: 5
           successThreshold: 1

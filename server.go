@@ -25,7 +25,7 @@ var templatesContent embed.FS
 // StartTime gives the start time of server
 var StartTime = time.Now()
 
-const defaultAppPort string = "1323"
+const defaultAppPort string = "8000"
 
 func getLogLevel(suppliedLogLevel string) log.Level {
 	if suppliedLogLevel == "" {
