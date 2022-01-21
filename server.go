@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"encoding/json"
 	"fmt"
@@ -10,8 +11,15 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	flag "github.com/spf13/pflag"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 )
 
 // Embed file content as a string
@@ -26,6 +34,8 @@ var templatesContent embed.FS
 var StartTime = time.Now()
 
 const defaultAppPort string = "8000"
+
+const tracerName = "hello-universe-tracer"
 
 func getLogLevel(suppliedLogLevel string) log.Level {
 	if suppliedLogLevel == "" {
@@ -55,10 +65,30 @@ type HomePageResponse struct {
 
 func homePageHandler(rw http.ResponseWriter, r *http.Request) {
 	var path = r.URL.Path
+	tracer := otel.Tracer(tracerName)
+	appResource, _ := resource.Merge(
+		resource.Default(),
+		resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String("hello-universe"),
+			semconv.ServiceVersionKey.String("v1.3.4"),
+			attribute.String("environment", "local"),
+		),
+	)
+	traceProvider := sdktrace.NewTracerProvider(sdktrace.WithResource(appResource))
+	otel.SetTracerProvider(traceProvider)
+	ctx := context.Background()
+	ctx, span := tracer.Start(ctx, "Compute Hostname")
 	log.Debug("Serving request for path: ", path)
 	host, _ := os.Hostname()
+	span.SetAttributes(attribute.String("request-id", uuid.New().String()))
+	span.End()
+	_, span = tracer.Start(ctx, "Compute Content Body")
 	content := "Hello Universe"
+	span.End()
+	_, span = tracer.Start(ctx, "Compute Uptime")
 	uptime := time.Now().Sub(StartTime).Round(time.Second)
+	span.End()
 	response := HomePageResponse{
 		RequestHeaders: r.Header,
 		Content:        content,
@@ -84,6 +114,11 @@ func homePageHandler(rw http.ResponseWriter, r *http.Request) {
 			"content":        response.Content,
 		})
 	}
+	defer func() {
+		if err := traceProvider.Shutdown(ctx); err != nil {
+			fmt.Println(err)
+		}
+	}()
 }
 
 func main() {
@@ -114,7 +149,8 @@ func main() {
 	var staticFS = http.FS(staticContent)
 	fs := http.FileServer(staticFS)
 	http.Handle("/static/", fs)
-	http.HandleFunc("/", homePageHandler)
+	wrappedHomePageHandler := otelhttp.NewHandler(homePageHandler, "/")
+	http.HandleFunc("/", wrappedHomePageHandler)
 
 	var port, isEnvVarSet = os.LookupEnv("APP_PORT")
 	if !isEnvVarSet {
