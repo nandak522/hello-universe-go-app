@@ -1,0 +1,30 @@
+version: "3"
+services:
+  hellouniverse:
+    platform: linux/arm64/v8
+    network_mode: host
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: local/hello-universe-go-app
+    expose:
+      - 8000
+    ports:
+    - 8000:8000
+
+  otelcol:
+    image: local/opentelemetry-collector
+    platform: linux/arm64/v8
+    network_mode: host
+    build:
+      context: otel-collector
+      dockerfile: Dockerfile
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT="otlp.nr-data.net:4317"
+      - NEW_RELIC_LICENSE_KEY="9468408a2a2ce1a4c25741ccb4af84caFFFFNRAL"
+    expose:
+      - 4317
+    ports:
+    - 4317:4317
+    volumes:
+      - ./otel-collector/otel-config.yaml:/app/otel-config.yaml
