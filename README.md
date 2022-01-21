@@ -1,12 +1,14 @@
 # hello-universe-go-app
-hello-universe-go-app
+`hello-universe-go-app`, a simple "Hello-Universe" service written in Go, with built-in Newrelic instrumentation.
 
-# Run server
+---
+## Run server
 ```sh
 go build -o server && ./server
 ```
 
-# Install as Helm chart
+---
+## Install as Helm chart
 ```sh
 kubectl create ns hello-universe
 
@@ -36,7 +38,8 @@ helm upgrade -v 3 \
     .
 ```
 
-# Want to see Newrelic Instrumentation ?
+---
+## Want to see Newrelic Instrumentation ?
 Supply the below environment variables with valid values and start the service. Thats all.
 
 * `NEW_RELIC_APP_NAME`
@@ -50,3 +53,13 @@ go build -o server && ./server
 ```
 
 Headover to Newrelic and find the application in "APM" screen.
+
+---
+## Create a Git Tag
+Whenever a new release/tag has to be created, just update `version.go` and push it to `main` branch. A github workflow is already configured that creates the actual (git) tag, which will be available in https://github.com/none-da/hello-universe-go-app/tags page.
+
+> For now Github release creation is still manual.
+
+---
+## Create a Docker Image
+Whenever a new tag is created (using the above mentioned steps), a github workflow automatically kicks-in, builds the docker images and pushes to [Dockerhub](https://hub.docker.com/r/nanda/hello-universe/tags?page=1&ordering=last_updated).
