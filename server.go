@@ -10,6 +10,8 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/newrelic/go-agent/v3/newrelic"
+
 	log "github.com/sirupsen/logrus"
 	flag "github.com/spf13/pflag"
 )
@@ -114,11 +116,26 @@ func main() {
 	var staticFS = http.FS(staticContent)
 	fs := http.FileServer(staticFS)
 	http.Handle("/static/", fs)
-	http.HandleFunc("/", homePageHandler)
 
 	var port, isEnvVarSet = os.LookupEnv("APP_PORT")
 	if !isEnvVarSet {
 		port = defaultAppPort
+	}
+	var newrelicAppName, isNewrelicAppNameSet = os.LookupEnv("NEW_RELIC_APP_NAME")
+	if !isNewrelicAppNameSet {
+		log.Warn("Newrelic App Name is not supplied. Hence Newrelic instrumentation is turned-off.")
+		http.HandleFunc("/", homePageHandler)
+	} else {
+		app, err := newrelic.NewApplication(
+			newrelic.ConfigAppName(newrelicAppName),
+			newrelic.ConfigLicense("NEW_RELIC_LICENSE_KEY"),
+			newrelic.ConfigFromEnvironment(),
+			newrelic.ConfigInfoLogger(os.Stdout),
+		)
+		if err != nil {
+			log.Fatal("Something went wrong with Newrelic Instrumentation. Error: ", err)
+		}
+		http.HandleFunc(newrelic.WrapHandleFunc(app, "/", homePageHandler))
 	}
 	log.Info("hello-universe service running @ http://localhost:", port)
 
