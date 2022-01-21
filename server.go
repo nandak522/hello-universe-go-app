@@ -122,14 +122,12 @@ func main() {
 	if !isEnvVarSet {
 		port = defaultAppPort
 	}
-	var newrelicAppName, isNewrelicAppNameSet = os.LookupEnv("NEW_RELIC_APP_NAME")
+	var _, isNewrelicAppNameSet = os.LookupEnv("NEW_RELIC_APP_NAME")
 	if !isNewrelicAppNameSet {
 		log.Warn("Newrelic App Name is not supplied. Hence Newrelic instrumentation is turned-off.")
 		http.HandleFunc("/", homePageHandler)
 	} else {
 		app, err := newrelic.NewApplication(
-			newrelic.ConfigAppName(newrelicAppName),
-			newrelic.ConfigLicense("NEW_RELIC_LICENSE_KEY"),
 			newrelic.ConfigFromEnvironment(),
 			func(config *newrelic.Config) {
 				log.SetLevel(getLogLevel(requiredLogLevel))
