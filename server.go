@@ -10,6 +10,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/newrelic/go-agent/v3/integrations/nrlogrus"
 	"github.com/newrelic/go-agent/v3/newrelic"
 
 	log "github.com/sirupsen/logrus"
@@ -130,7 +131,10 @@ func main() {
 			newrelic.ConfigAppName(newrelicAppName),
 			newrelic.ConfigLicense("NEW_RELIC_LICENSE_KEY"),
 			newrelic.ConfigFromEnvironment(),
-			newrelic.ConfigInfoLogger(os.Stdout),
+			func(config *newrelic.Config) {
+				log.SetLevel(getLogLevel(requiredLogLevel))
+				config.Logger = nrlogrus.StandardLogger()
+			},
 		)
 		if err != nil {
 			log.Fatal("Something went wrong with Newrelic Instrumentation. Error: ", err)
