@@ -81,5 +81,6 @@ spec:
       {{ if $currentDeployment.terminationGracePeriodSeconds -}}
       terminationGracePeriodSeconds: {{ $currentDeployment.terminationGracePeriodSeconds }}
       {{ end }}
+      {{- include "app.nodeLabels" $values.nodeLabels | trim | nindent 6 }}
 ---
 {{ end }}

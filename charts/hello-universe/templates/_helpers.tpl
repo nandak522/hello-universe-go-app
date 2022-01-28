@@ -31,3 +31,13 @@
     port: {{ $probeInfo.tcpSocket.port }}
   {{- end }}
 {{- end }}
+
+{{/*
+Renders nodeSelector block in the manifests
+*/}}
+{{- define "app.nodeLabels" }}
+{{- if . }}
+nodeSelector:
+  {{ toYaml . }}
+{{- end -}}
+{{- end -}}

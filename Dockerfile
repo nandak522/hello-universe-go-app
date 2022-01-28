@@ -3,8 +3,7 @@ ENV USER=appuser \
     UID=10001 \
     GO111MODULE=on \
     CGO_ENABLED=0 \
-    GOOS=linux \
-    GOARCH=amd64
+    GOOS=linux
 RUN adduser \
     --disabled-password \
     --gecos "" \

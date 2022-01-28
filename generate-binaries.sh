@@ -5,7 +5,7 @@ set -x -eou pipefail
 # go test -cover
 echo "Proceeding with generating the binaries..."
 
-platforms=("linux/amd64" "darwin/amd64")
+platforms=("linux/arm64" "linux/amd64" "darwin/amd64")
 VERSION=`grep -E "MAJOR|MINOR|PATCH" version.go | cut -d '"' -f 2 | xargs echo -n | tr -s " " "."`
 
 for platform in "${platforms[@]}"

@@ -14,7 +14,7 @@ deployments:
         externalNodePort: 32760
         servicePortName: httpport
         imageName: nanda/hello-universe
-        imageTag: v1.3.3
+        imageTag: v1.3.8
         configMapName: config-plain
         configFileName: config-file
         secretName: secrets-plain
@@ -59,3 +59,5 @@ deployments:
       maxUnavailable: "20%"
     replicas: 1 # If hpa is defined, defining replicas count here is incorrect. Let hpa totally manage the replicas.
     # terminationGracePeriodSeconds: 60
+# nodeLabels:
+#   environment: worker
