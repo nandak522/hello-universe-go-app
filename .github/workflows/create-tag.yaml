@@ -8,13 +8,13 @@ on:
 
 jobs:
   unit-test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Setup Go
         continue-on-error: false
         uses: actions/setup-go@v2
         with:
-          go-version: '1.17' # The Go version to download (if necessary) and use.
+          go-version: '1.18' # The Go version to download (if necessary) and use.
       - name: Checkout source code
         uses: actions/checkout@v2
         continue-on-error: false
@@ -35,7 +35,7 @@ jobs:
           go test
 
   cut-tag:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
