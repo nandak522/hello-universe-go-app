@@ -18,10 +18,12 @@ import (
 )
 
 // Embed file content as a string
+//
 //go:embed static/*
 var staticContent embed.FS
 
 // Embed templates
+//
 //go:embed templates
 var templatesContent embed.FS
 

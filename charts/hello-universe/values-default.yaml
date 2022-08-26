@@ -48,7 +48,7 @@ deployments:
       #   servicePortName: httpport
       #   containerPortName: httpport
       #   imageName: nginx
-      #   imageTag: 1.18.0
+      #   imageTag: 1.22
       #   resources:
       #     requests:
       #       cpu: 100m
