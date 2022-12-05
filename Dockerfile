@@ -22,13 +22,18 @@ COPY static /app/static/
 RUN cd /app \
     && go build -a -o server
 
-FROM scratch
+FROM ubuntu:22.04
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
-WORKDIR /app
-USER ${USER}:${USER}
-COPY --from=builder /app/server .
-ENV USER=appuser \
+ENV DEBIAN_FRONTEND=noninteractive \
+    USER=appuser \
     APP_PORT=8000
+WORKDIR /app
+COPY --chown=${USER}:${USER} --from=builder /app/server .
+RUN chown -Rv ${USER}:${USER} /app
 EXPOSE ${APP_PORT}
+RUN apt-get -qq update && apt-get -qq install -y --no-install-recommends curl net-tools netcat dnsutils && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
+USER ${USER}:${USER}
 CMD ["/app/server"]

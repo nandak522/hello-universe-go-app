@@ -41,3 +41,10 @@ nodeSelector:
   {{ toYaml . }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Renders Pod's Annotations.
+*/}}
+{{- define "app.podAnnotations" -}}
+{{- toYaml .podAnnotations -}}
+{{- end }}
