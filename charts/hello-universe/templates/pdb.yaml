@@ -8,7 +8,7 @@ apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
   name: {{ printf "%s-%s" $currentDeployment.name "pdb" }}
-  namespace: {{ $values.namespace }}
+  namespace: {{ $values.namespace.name }}
 spec:
   minAvailable: {{ $currentDeployment.pdb.minAvailable }}
   selector:

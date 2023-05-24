@@ -7,7 +7,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: {{ $currentDeployment.name }}
-  namespace: {{ $values.namespace }}
+  namespace: {{ $values.namespace.name }}
 spec:
   {{- if .replicas}}
   replicas: {{ .replicas }}
@@ -74,9 +74,17 @@ spec:
           {{- end }}
           image: {{ .imageName }}:{{- .imageTag }}
           ports:
+            {{- if hasKey . "ports" }}
+            {{- range .ports }}
+            - protocol: TCP
+              name: {{ .name }}
+              containerPort: {{ .value }}
+            {{- end }}
+            {{- else if .containerPort }}
             - protocol: TCP
               name: {{ .containerPortName }}
               containerPort: {{ .containerPort }}
+            {{- end }}
           resources:
           {{- toYaml .resources | nindent 12 }}
       {{- end -}}
