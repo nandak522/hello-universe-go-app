@@ -63,7 +63,7 @@ func homePageHandler(rw http.ResponseWriter, r *http.Request) {
 	log.Debug("Serving request for path: ", path)
 	host, _ := os.Hostname()
 	content := "Hello Universe"
-	uptime := time.Now().Sub(StartTime).Round(time.Second)
+	uptime := time.Since(StartTime).Round(time.Second)
 	response := HomePageResponse{
 		RequestHeaders: r.Header,
 		Content:        content,

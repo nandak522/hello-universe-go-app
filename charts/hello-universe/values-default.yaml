@@ -21,7 +21,7 @@ deployments:
         # externalNodePort: 32758
         # servicePortName: httpport
         imageName: nanda/hello-universe
-        imageTag: v1.3.12
+        imageTag: v1.3.13
         configMapName: config-plain
         configFileName: config-file
         secretName: secrets-plain
