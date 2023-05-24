@@ -19,7 +19,7 @@ COPY *.go /app/
 COPY go.* /app/
 COPY templates /app/templates/
 COPY static /app/static/
-RUN cd /app &&
+RUN cd /app && \
     go build -a -o server
 
 FROM ubuntu:23.04
@@ -32,8 +32,8 @@ WORKDIR /app
 COPY --chown=${USER}:${USER} --from=builder /app/server .
 RUN chown -Rv ${USER}:${USER} /app
 EXPOSE ${APP_PORT}
-RUN apt-get -qq update && apt-get -qq install -y --no-install-recommends curl net-tools netcat-openbsd dnsutils &&
-    apt clean &&
+RUN apt-get -qq update && apt-get -qq install -y --no-install-recommends curl net-tools netcat-openbsd dnsutils && \
+    apt clean && \
     rm -rf /var/lib/apt/lists/*
 USER ${USER}:${USER}
 CMD ["/app/server"]
