@@ -20,7 +20,7 @@ COPY go.* /app/
 COPY templates /app/templates/
 COPY static /app/static/
 RUN cd /app && \
-    go build -a -o server
+    go build -ldflags="-s -w" -a -o server
 
 FROM ubuntu:23.04
 COPY --from=builder /etc/passwd /etc/passwd

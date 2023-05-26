@@ -5,6 +5,9 @@
 ## Run server
 ```sh
 go build -o server && ./server
+
+# If you are really conscious about the size. You can run this instead:
+go build -ldflags="-s -w" -a -o server && ./server
 ```
 
 ---
