@@ -9,22 +9,7 @@
 <body class="bg-light">
     <div class="container">
         <div class="row">
-            <div class="col">
-                <div class="px-5 py-5">
-                    <h3>Request Headers</h3>
-                    <ol class="list-group">
-                        {{- range $headerName, $headerValue := .requestHeaders }}
-                        <li class="list-group-item d-flex justify-content-between align-items-start">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">{{ $headerName }}</div>
-                                {{ $headerValue }}
-                            </div>
-                        </li>
-                        {{- end }}
-                    </ol>
-                </div>
-            </div>
-            <div class="col">
+            <div class="col-7">
                 <div class="px-5 py-5">
                     <h3>Response</h3>
                     <div class="alert alert-light" role="alert">
@@ -47,6 +32,22 @@
                     </table>
                 </div>
             </div>
+            <div class="col-5">
+                <div class="px-1 py-5">
+                    <h3>Request Headers</h3>
+                    <ol class="list-group">
+                        {{- range $headerName, $headerValue := .requestHeaders }}
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">{{ $headerName }}</div>
+                                {{ $headerValue }}
+                            </div>
+                        </li>
+                        {{- end }}
+                    </ol>
+                </div>
+            </div>
+
         </div>
     </div>
     <script type="text/javascript" src="/static/js/bootstrap.bundle.min.js" />
